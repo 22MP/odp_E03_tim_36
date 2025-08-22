@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { RegistracijaForma } from "../../components/auth/RegistracijaForma";
+import RegistracijaForma from "../../components/auth/RegistracijaForma";
 import type { IAuthAPIService } from "../../api_services/auth/IAuthAPIService";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 

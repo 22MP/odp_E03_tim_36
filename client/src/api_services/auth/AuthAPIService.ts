@@ -28,17 +28,22 @@ export const authApi: IAuthAPIService = {
   async registracija(
     korisnickoIme: string,
     lozinka: string,
-    uloga: string
+    uloga: string,
+    imePrezime: string,
+    telefon: string,
+    slika: string
   ): Promise<AuthResponse> {
     try {
       const res = await axios.post<AuthResponse>(`${API_URL}/register`, {
         korisnickoIme,
         lozinka,
-        uloga
+        uloga,
+        imePrezime,
+        telefon,
+        slika
       });
       return res.data;
     } catch (error) {
-      console.log('Registration error:', error);
       let message = "Greška prilikom registracije.";
       if (axios.isAxiosError(error)) {
         message = error.response?.data?.message || message;
