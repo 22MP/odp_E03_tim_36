@@ -3,5 +3,7 @@ export class UserDto {
     public id: number = 0,
     public korisnickoIme: string = "",
     public uloga: string = "user",
+    public telefon: string = "",
+    public slikaUrl?: string
   ) {}
 }

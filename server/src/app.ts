@@ -17,7 +17,7 @@ const app = express();
 app.use(cors());
 
 // Serve avatars statically
-app.use('/uploads/avatars', express.static(path.join(process.cwd(), "src/uploads/avatars")));
+app.use('/uploads/avatars', express.static(path.join(process.cwd(), "uploads/avatars")));
 
 // Only use express.json for non-file-upload routes
 app.use(express.json());
