@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     korisnickoIme VARCHAR(50) UNIQUE NOT NULL,
     lozinka VARCHAR(500) NOT NULL,
     brojTelefona VARCHAR(20),
-    ImePrezime VARCHAR(100),
+    imePrezime VARCHAR(100),
     slika VARCHAR(255),
     uloga VARCHAR(15) NOT NULL
 );

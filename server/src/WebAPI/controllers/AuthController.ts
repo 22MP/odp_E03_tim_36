@@ -1,8 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { IAuthService } from '../../Domain/services/auth/IAuthService';
-import { validacijaPodatakaAuth } from '../validators/auth/RegisterValidator';
+import { validacijaPodatakaAuth } from '../validators/auth/LogInValidator';
 import jwt from "jsonwebtoken";
 import { uploadAvatar } from '../../Middlewares/uploadAvatar/UploadAvatar';
+import { validacijaPodatakaRegistracija } from '../validators/auth/RegValidator';
 
 export class AuthController {
   private router: Router;
@@ -60,7 +61,7 @@ export class AuthController {
     try {
       // Polja iz forme
       const { korisnickoIme, lozinka, uloga, imePrezime, telefon } = req.body;
-      const rezultat = validacijaPodatakaAuth(korisnickoIme, lozinka);
+      const rezultat = validacijaPodatakaRegistracija(korisnickoIme, lozinka, imePrezime, telefon, uloga, req.file);
 
       if (!rezultat.uspesno) {
         res.status(400).json({ success: false, message: "Korisničko ime i lozinka su obavezni." });

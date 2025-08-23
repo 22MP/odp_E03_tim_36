@@ -1,10 +1,10 @@
 // Forma za registraciju korisnika, podržava avatar sliku
 import React, { useState, useRef } from "react";
-import { validacijaPodatakaAuth } from "../../api_services/validators/auth/AuthValidator";
 import type { AuthFormProps } from "../../types/props/auth_form_props/AuthFormProps";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 import { Link } from "react-router-dom";
 import { useAvatar } from "../../hooks/avatar/AvatarHook";
+import { validacijaPodatakaRegistracija } from "../../api_services/validators/auth/RegValidator";
 
 const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
   const { avatar, setAvatar } = useAvatar(); // Globalni avatar context
@@ -25,7 +25,13 @@ const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
     e.preventDefault();
 
     // Validacija korisničkog imena i lozinke
-    const validacija = validacijaPodatakaAuth(korisnickoIme, lozinka);
+    const validacija = validacijaPodatakaRegistracija(
+      korisnickoIme,
+      lozinka,
+      imePrezime,
+      telefon,
+      avatar
+    );
     if (!validacija.uspesno) {
       setGreska(validacija.poruka ?? "Neispravni podaci");
       return;

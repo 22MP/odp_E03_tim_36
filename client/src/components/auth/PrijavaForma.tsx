@@ -1,7 +1,7 @@
 // Forma za prijavu korisnika
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { validacijaPodatakaAuth } from "../../api_services/validators/auth/AuthValidator";
+import { validacijaPodatakaAuth } from "../../api_services/validators/auth/LogInValidator";
 import type { AuthFormProps } from "../../types/props/auth_form_props/AuthFormProps";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 
