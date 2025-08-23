@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from "path";
 import { IAuthService } from './Domain/services/auth/IAuthService';
 import { AuthService } from './Services/auth/AuthService';
 import { IUserRepository } from './Domain/repositories/users/IUserRepository';
@@ -14,6 +15,11 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors());
+
+// Serve avatars statically
+app.use('/uploads/avatars', express.static(path.join(process.cwd(), "src/uploads/avatars")));
+
+// Only use express.json for non-file-upload routes
 app.use(express.json());
 
 // Repositories

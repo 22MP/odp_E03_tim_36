@@ -1,30 +1,20 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useState, type ReactNode } from "react";
+import type { AvatarContextType } from "../../types/avatar/AvatarContex";
 
-interface AvatarContextType {
-  avatar: string;
-  setAvatar: (avatar: string) => void;
-}
-
-const AvatarContext = createContext<AvatarContextType | undefined>(undefined);
+// Kreiranje konteksta za avatar slike
+export const AvatarContext = createContext<AvatarContextType | undefined>(undefined);
 
 interface AvatarProviderProps {
   children: ReactNode;
 }
 
+// Provider koji omogućava globalno stanje za avatar sliku
 export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children }) => {
-  const [avatar, setAvatar] = useState<string>('');
+  const [avatar, setAvatar] = useState<File | null>(null);
 
   return (
     <AvatarContext.Provider value={{ avatar, setAvatar }}>
       {children}
     </AvatarContext.Provider>
   );
-};
-
-export const useAvatar = (): AvatarContextType => {
-  const context = useContext(AvatarContext);
-  if (context === undefined) {
-    throw new Error('useAvatar must be used within an AvatarProvider');
-  }
-  return context;
 };

@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { IAuthService } from '../../Domain/services/auth/IAuthService';
 import { validacijaPodatakaAuth } from '../validators/auth/RegisterValidator';
 import jwt from "jsonwebtoken";
+import { uploadAvatar } from '../../Middlewares/uploadAvatar/UploadAvatar';
 
 export class AuthController {
   private router: Router;
@@ -15,18 +16,16 @@ export class AuthController {
 
   private initializeRoutes(): void {
     this.router.post('/auth/login', this.prijava.bind(this));
-    this.router.post('/auth/register', this.registracija.bind(this));
+    // Middleware za upload slike - mora biti pre handlera
+    this.router.post('/auth/register', uploadAvatar.single("slika"), this.registracija.bind(this));
   }
 
   /**
-   * POST /api/v1/auth/login
    * Prijava korisnika
    */
   private async prijava(req: Request, res: Response): Promise<void> {
     try {
       const { korisnickoIme, lozinka } = req.body;
-
-      // Validacija input parametara
       const rezultat = validacijaPodatakaAuth(korisnickoIme, lozinka);
 
       if (!rezultat.uspesno) {
@@ -36,34 +35,31 @@ export class AuthController {
 
       const result = await this.authService.prijava(korisnickoIme, lozinka);
 
-      // Proveravamo da li je prijava uspešna
       if (result.id !== 0) {
-        // Kreiranje jwt tokena
+        // JWT token sa podacima o korisniku
         const token = jwt.sign(
           { 
             id: result.id, 
             korisnickoIme: result.korisnickoIme, 
-            uloga: result.uloga,
+            uloga: result.uloga
           }, process.env.JWT_SECRET ?? "", { expiresIn: '6h' });
 
         res.status(200).json({success: true, message: 'Uspešna prijava', data: token});
-        return;
       } else {
-        res.status(401).json({success: false, message: "Neispravno korisnicko ime ili lozinka"});
-        return;
+        res.status(401).json({success: false, message: "Neispravno korisničko ime ili lozinka"});
       }
     } catch (error) {
-      res.status(500).json({success: false, message: "Doslo je do greske na serveru."});
+      res.status(500).json({success: false, message: "Došlo je do greške na serveru."});
     }
   }
 
   /**
-   * POST /api/v1/auth/register
-   * Registracija novog korisnika
+   * Registracija korisnika (sa slikom)
    */
   private async registracija(req: Request, res: Response): Promise<void> {
     try {
-      const { korisnickoIme, lozinka, uloga } = req.body;
+      // Polja iz forme
+      const { korisnickoIme, lozinka, uloga, imePrezime, telefon } = req.body;
       const rezultat = validacijaPodatakaAuth(korisnickoIme, lozinka);
 
       if (!rezultat.uspesno) {
@@ -71,30 +67,40 @@ export class AuthController {
         return;
       }
 
-      const result = await this.authService.registracija(korisnickoIme, uloga, lozinka);
+      // Ako je poslata slika, sačuvaj url
+      let avatarUrl = "";
+      if (req.file) {
+        avatarUrl = "/uploads/avatars/" + req.file.filename;
+      }
+
+      const result = await this.authService.registracija(
+        korisnickoIme,
+        uloga,
+        lozinka,
+        imePrezime,
+        telefon,
+        avatarUrl
+      );
       
-      // Proveravamo da li je registracija uspešna
       if (result.id !== 0) {
-        // Kreiranje jwt tokena
+        // JWT token sa podacima o korisniku
         const token = jwt.sign(
           { 
             id: result.id, 
             korisnickoIme: result.korisnickoIme, 
             uloga: result.uloga,
+            avatar: avatarUrl
           }, process.env.JWT_SECRET ?? "", { expiresIn: '6h' });
 
-        res.status(201).json({success: true, message: "Uspesna registracija", data: token});
+        res.status(201).json({success: true, message: "Uspešna registracija", data: token});
       } else {
-        res.status(401).json({success: false, message: "Registracija nije uspela. Korisnicko ime vec postoji." });
+        res.status(401).json({success: false, message: "Registracija nije uspela. Korisničko ime već postoji." });
       }
     } catch (error) {
-      res.status(500).json({success: false, message: "Doslo je do greske na serveru."});
+      res.status(500).json({success: false, message: "Došlo je do greške na serveru."});
     }
   }
 
-  /**
-   * Getter za router
-   */
   public getRouter(): Router {
     return this.router;
   }

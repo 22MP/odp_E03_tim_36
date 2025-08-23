@@ -5,7 +5,7 @@ export class User {
     public uloga: string = 'user',
     public lozinka: string = '',
     public brojTelefona: string = '',
-    public ImePrezime: string = '',
-    public slika: string = '' // URL to image
+    public imePrezime: string = '',
+    public slika: string = '' // URL do slike
   ) {}
 }

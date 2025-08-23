@@ -1,3 +1,4 @@
+// Glavna aplikacija - definisanje svih ruta
 import {
   Routes,
   Route,
@@ -9,14 +10,13 @@ import RegistracijaStranica from "./pages/auth/RegistracijaStranica";
 import NotFoundStranica from "./pages/not_found/NotFoundPage";
 import ChatPage from "./pages/chat/ChatPage";
 import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
-import ProfilePictureAddPage from "./pages/profile/ProfilePictureAddPage";
+// TODO: Dodaj rutu za profil kada implementiraš ProfilePage
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<PrijavaStranica authApi={authApi} />} />
       <Route path="/register" element={<RegistracijaStranica authApi={authApi} />} />
-  <Route path="/profile-picture" element={<ProfilePictureAddPage />} />
       <Route path="/404" element={<NotFoundStranica />} />
 
       <Route
@@ -36,9 +36,8 @@ function App() {
           </ProtectedRoute>
         }
       />
-      {/* Preusmerava na dashboard kao default rutu */}
+      {/* Preusmerava na login kao default rutu */}
       <Route path="/" element={<Navigate to="/login" replace />} />
-
       {/* Catch-all ruta za nepostojeće stranice */}
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
@@ -46,4 +45,3 @@ function App() {
 }
 
 export default App;
-

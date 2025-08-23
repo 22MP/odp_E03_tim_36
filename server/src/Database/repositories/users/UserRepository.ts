@@ -7,26 +7,35 @@ export class UserRepository implements IUserRepository {
   async create(user: User): Promise<User> {
     try {
       const query = `
-        INSERT INTO users (korisnickoIme, uloga, lozinka) 
-        VALUES (?, ?, ?)
+        INSERT INTO users (korisnickoIme, uloga, lozinka, brojTelefona, imePrezime, slika) 
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
 
       const [result] = await db.execute<ResultSetHeader>(query, [
         user.korisnickoIme,
         user.uloga,
         user.lozinka,
+        user.brojTelefona,
+        user.imePrezime,
+        user.slika
       ]);
 
-
       if (result.insertId) {
-        // Vraćamo novog korisnika sa dodeljenim ID-om
-         return new User(result.insertId, user.korisnickoIme, user.lozinka, user.brojTelefona, user.ImePrezime, user.slika, user.uloga);
+        return new User(
+          result.insertId,
+          user.korisnickoIme,
+          user.uloga,
+          user.lozinka,
+          user.brojTelefona,
+          user.imePrezime,
+          user.slika
+        );
       }
 
-      // Vraćamo prazan objekat ako kreiranje nije uspešno
       return new User();
     } catch (error) {
-      return new User();
+      console.error("UserRepository.create error:", error);
+      throw error;
     }
   }
 
@@ -37,117 +46,69 @@ export class UserRepository implements IUserRepository {
 
       if (rows.length > 0) {
         const row = rows[0];
-  return new User(row.id, row.korisnickoIme, row.lozinka, row.brojTelefona, row.ImePrezime, row.slika, row.uloga);
+        return new User(
+          row.id,
+          row.korisnickoIme,
+          row.uloga,
+          row.lozinka,
+          row.brojTelefona,
+          row.imePrezime,
+          row.slika
+        );
       }
 
-  return new User();
-    } catch {
-  return new User();
+      return new User();
+    } catch (error) {
+      console.error("UserRepository.getById error:", error);
+      throw error;
     }
   }
 
   async getByUsername(korisnickoIme: string): Promise<User> {
     try {
-      const query = `
-        SELECT id, korisnickoIme, uloga, lozinka
-        FROM users 
-        WHERE korisnickoIme = ?
-      `;
-
+      const query = `SELECT * FROM users WHERE korisnickoIme = ?`;
       const [rows] = await db.execute<RowDataPacket[]>(query, [korisnickoIme]);
 
       if (rows.length > 0) {
         const row = rows[0];
-  return new User(row.id, row.korisnickoIme, row.lozinka, row.brojTelefona, row.ImePrezime, row.slika, row.uloga);
+        return new User(
+          row.id,
+          row.korisnickoIme,
+          row.uloga,
+          row.lozinka,
+          row.brojTelefona,
+          row.imePrezime,
+          row.slika
+        );
       }
 
-  return new User();
+      return new User();
     } catch (error) {
-      console.log("user get by username: " + error);
-  return new User();
+      console.error("UserRepository.getByUsername error:", error);
+      throw error;
     }
   }
 
-  async getAll(): Promise<User[]> {
+  async getByUloga(uloga: string): Promise<User[]> {   // ✅ restored method
     try {
-      const query = `SELECT * FROM users ORDER BY id ASC`;
-      const [rows] = await db.execute<RowDataPacket[]>(query);
+      const query = `SELECT * FROM users WHERE uloga = ?`;
+      const [rows] = await db.execute<RowDataPacket[]>(query, [uloga]);
 
       return rows.map(
-        (row) => new User(row.id, row.korisnickoIme, row.lozinka, row.brojTelefona, row.ImePrezime, row.slika, row.uloga)
+        (row: any) =>
+          new User(
+            row.id,
+            row.korisnickoIme,
+            row.uloga,
+            row.lozinka,
+            row.brojTelefona,
+            row.imePrezime,
+            row.slika
+          )
       );
-    } catch {
-      return [];
+    } catch (error) {
+      console.error("UserRepository.getByUloga error:", error);
+      throw error;
     }
   }
-
-  async update(user: User): Promise<User> {
-    try {
-      const query = `
-        UPDATE users 
-        SET ImePrezime = ?, slika = ?, brojTelefona = ?
-        WHERE id = ?
-      `;
-
-      const [result] = await db.execute<ResultSetHeader>(query, [
-        user.ImePrezime,
-        user.slika,
-        user.brojTelefona,
-        user.id,
-      ]);
-
-      if (result.affectedRows > 0) {
-        return user;
-      }
-
-    return new User();
-    } catch {
-    return new User();
-    }
-  }
-
-  async delete(id: number): Promise<boolean> {
-    try {
-      const query = `
-        DELETE FROM users 
-        WHERE id = ?
-      `;
-
-      const [result] = await db.execute<ResultSetHeader>(query, [id]);
-
-      return result.affectedRows > 0;
-    } catch {
-      return false;
-    }
-  }
-
-  async exists(id: number): Promise<boolean> {
-    try {
-      const query = `
-        SELECT COUNT(*) as count 
-        FROM users 
-        WHERE id = ?
-      `;
-
-      const [rows] = await db.execute<RowDataPacket[]>(query, [id]);
-
-      return rows[0].count > 0;
-    } catch {
-      return false;
-    }
-  }
-  
-    async getByUloga(uloga: string): Promise<User[]> {
-      try {
-        const query = `
-          SELECT * FROM users WHERE uloga = ?
-        `;
-        const [rows] = await db.execute<RowDataPacket[]>(query, [uloga]);
-        return rows.map(
-          (row) => new User(row.id, row.korisnickoIme, row.lozinka, row.brojTelefona, row.ImePrezime, row.slika, row.uloga)
-        );
-      } catch {
-        return [];
-      }
-    }
 }

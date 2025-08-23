@@ -1,3 +1,4 @@
+// Forma za prijavu korisnika
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { validacijaPodatakaAuth } from "../../api_services/validators/auth/AuthValidator";
@@ -10,15 +11,18 @@ export function PrijavaForma({ authApi }: AuthFormProps) {
   const [greska, setGreska] = useState("");
   const { login } = useAuth();
 
+  // Submit funkcija za formu
   const podnesiFormu = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validacija podataka
     const validacija = validacijaPodatakaAuth(korisnickoIme, lozinka);
     if (!validacija.uspesno) {
-      setGreska(validacija.poruka ?? "Неисправни подаци");
+      setGreska(validacija.poruka ?? "Neispravni podaci");
       return;
     }
 
+    // Poziv API-ja
     const odgovor = await authApi.prijava(korisnickoIme, lozinka);
     if (odgovor.success && odgovor.data) {
       login(odgovor.data);
@@ -31,18 +35,18 @@ export function PrijavaForma({ authApi }: AuthFormProps) {
 
   return (
     <div className="bg-white/30 backdrop-blur-lg shadow-md rounded-2xl p-10 w-full max-w-md border border-blue-400">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Пријава</h1>
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Prijava</h1>
       <form onSubmit={podnesiFormu} className="space-y-4">
         <input
           type="text"
-          placeholder="Корисничко име"
+          placeholder="Korisničko ime"
           value={korisnickoIme}
           onChange={(e) => setKorisnickoIme(e.target.value)}
           className="w-full bg-white/40 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <input
           type="password"
-          placeholder="Лозинка"
+          placeholder="Lozinka"
           value={lozinka}
           onChange={(e) => setLozinka(e.target.value)}
           className="w-full bg-white/40 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -52,13 +56,13 @@ export function PrijavaForma({ authApi }: AuthFormProps) {
           type="submit"
           className="w-full bg-blue-700/70 hover:bg-blue-700/90 text-white py-2 rounded-xl transition"
         >
-          Пријави се
+          Prijavi se
         </button>
       </form>
       <p className="text-center text-sm mt-4">
-        Немате налог?{" "}
+        Nemate nalog?{" "}
         <Link to="/register" className="text-blue-700 hover:underline">
-          Региструјте се
+          Registrujte se
         </Link>
       </p>
     </div>

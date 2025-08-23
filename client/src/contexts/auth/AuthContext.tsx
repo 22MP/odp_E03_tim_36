@@ -4,6 +4,9 @@ import type { AuthContextType } from '../../types/auth/AuthContext';
 import type { AuthUser } from '../../types/auth/AuthUser';
 import { ObrišiVrednostPoKljuču, PročitajVrednostPoKljuču, SačuvajVrednostPoKljuču } from '../../helpers/local_storage';
 import type { JwtTokenClaims } from '../../types/auth/JwtTokenClaims';
+import { useAvatar } from '../../hooks/avatar/AvatarHook';
+
+// Ako koristiš AvatarContext
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -11,7 +14,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const decodeJWT = (token: string): JwtTokenClaims | null => {
     try {
         const decoded = jwtDecode<JwtTokenClaims>(token);
-        
         // Proveri da li token ima potrebna polja
         if (decoded.id && decoded.korisnickoIme && decoded.uloga) {
             return {
@@ -20,7 +22,6 @@ const decodeJWT = (token: string): JwtTokenClaims | null => {
                 uloga: decoded.uloga
             };
         }
-        
         return null;
     } catch (error) {
         console.error('Greška pri dekodiranju JWT tokena:', error);
@@ -33,7 +34,6 @@ const isTokenExpired = (token: string): boolean => {
     try {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
-        
         return decoded.exp ? decoded.exp < currentTime : false;
     } catch {
         return true;
@@ -45,10 +45,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Dodaj hook za avatar context
+    const { setAvatar } = useAvatar();
+
     // Učitaj token iz localStorage pri pokretanju
     useEffect(() => {
         const savedToken = PročitajVrednostPoKljuču("authToken");
-        
         if (savedToken) {
             // Proveri da li je token istekao
             if (isTokenExpired(savedToken)) {
@@ -56,7 +58,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setIsLoading(false);
                 return;
             }
-            
             const claims = decodeJWT(savedToken);
             if (claims) {
                 setToken(savedToken);
@@ -69,13 +70,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 ObrišiVrednostPoKljuču("authToken");
             }
         }
-        
         setIsLoading(false);
     }, []);
 
+    // Funkcija za login
     const login = (newToken: string) => {
         const claims = decodeJWT(newToken);
-        
         if (claims && !isTokenExpired(newToken)) {
             setToken(newToken);
             setUser({
@@ -89,10 +89,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    // Funkcija za logout
     const logout = () => {
         setToken(null);
         setUser(null);
         ObrišiVrednostPoKljuču("authToken");
+        setAvatar(null); // Resetuje avatar na default (👤)
     };
 
     const isAuthenticated = !!user && !!token;

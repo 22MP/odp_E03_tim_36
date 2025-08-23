@@ -13,13 +13,20 @@ export class AuthService implements IAuthService {
     const user = await this.userRepository.getByUsername(korisnickoIme);
 
     if (user.id !== 0 && await bcrypt.compare(lozinka, user.lozinka)) {
-      return new UserAuthDataDto(user.id, user.korisnickoIme, user.uloga);
+      return new UserAuthDataDto(user.id, user.korisnickoIme, user.uloga); 
     }
 
     return new UserAuthDataDto(); // Neispravno korisničko ime ili lozinka
   }
 
-  async registracija(korisnickoIme: string, uloga: string, lozinka: string): Promise<UserAuthDataDto> {
+  async registracija(
+    korisnickoIme: string,
+    uloga: string,
+    lozinka: string,
+    imePrezime: string,
+    brojTelefona: string,
+    slika: string // url slike
+  ): Promise<UserAuthDataDto> {
     const existingUser = await this.userRepository.getByUsername(korisnickoIme);
     
     if (existingUser.id !== 0) {
@@ -30,11 +37,15 @@ export class AuthService implements IAuthService {
     const hashedPassword = await bcrypt.hash(lozinka, this.saltRounds);
 
     const newUser = await this.userRepository.create(
-      new User(0, korisnickoIme, uloga, hashedPassword)
+      new User(0, korisnickoIme, uloga, hashedPassword, brojTelefona, imePrezime, slika)
     );
 
     if (newUser.id !== 0) {
-      return new UserAuthDataDto(newUser.id, newUser.korisnickoIme, newUser.uloga);
+      return new UserAuthDataDto(
+        newUser.id,
+        newUser.korisnickoIme,
+        newUser.uloga,
+      );
     }
 
     return new UserAuthDataDto(); // Registracija nije uspela
