@@ -42,7 +42,10 @@ export class AuthController {
           { 
             id: result.id, 
             korisnickoIme: result.korisnickoIme, 
-            uloga: result.uloga
+            uloga: result.uloga,
+            slikaUrl: result.slikaUrl, 
+            brojTelefona: result.brojTelefona, 
+            imePrezime:result.imePrezime 
           }, process.env.JWT_SECRET ?? "", { expiresIn: '6h' });
 
         res.status(200).json({success: true, message: 'Uspešna prijava', data: token});
@@ -68,19 +71,20 @@ export class AuthController {
         return;
       }
 
-      // Ako je poslata slika, sačuvaj url
-      let avatarUrl = "";
+      // Ako je poslata slika, sačuvaj url slike
+      let slikaUrl = "";
       if (req.file) {
-        avatarUrl = "/uploads/avatars/" + req.file.filename;
+        slikaUrl = "/uploads/slike/" + req.file.filename;
       }
 
+      // Registracija korisnika
       const result = await this.authService.registracija(
         korisnickoIme,
         uloga,
         lozinka,
         imePrezime,
         telefon,
-        avatarUrl
+        slikaUrl
       );
       
       if (result.id !== 0) {
@@ -90,7 +94,9 @@ export class AuthController {
             id: result.id, 
             korisnickoIme: result.korisnickoIme, 
             uloga: result.uloga,
-            avatar: avatarUrl
+            slikaUrl: result.slikaUrl, 
+            brojTelefona: result.brojTelefona, 
+            imePrezime: result.imePrezime  
           }, process.env.JWT_SECRET ?? "", { expiresIn: '6h' });
 
         res.status(201).json({success: true, message: "Uspešna registracija", data: token});

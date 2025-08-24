@@ -3,13 +3,10 @@ import React, { useState, useRef } from "react";
 import type { AuthFormProps } from "../../types/props/auth_form_props/AuthFormProps";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 import { Link } from "react-router-dom";
-import { useAvatar } from "../../hooks/avatar/AvatarHook";
 import { validacijaPodatakaRegistracija } from "../../api_services/validators/auth/RegValidator";
 
 const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
-  const { avatar, setAvatar } = useAvatar(); // Globalni avatar context
-  // TODO: Kada implementiraš promenu slike profila, koristi AvatarContext i na profil stranici
-
+  const [avatar, setAvatar] = useState<File | null>(null); // Lokalni avatar
   // Stanja za sva polja forme
   const [korisnickoIme, setKorisnickoIme] = useState("");
   const [lozinka, setLozinka] = useState("");
@@ -24,7 +21,7 @@ const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
   const podnesiFormu = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validacija korisničkog imena i lozinke
+    // Validacija podataka 
     const validacija = validacijaPodatakaRegistracija(
       korisnickoIme,
       lozinka,
@@ -55,8 +52,7 @@ const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
       setKorisnickoIme("");
       setLozinka("");
       setImePrezime("");
-      setTelefon("");
-      setAvatar(null); 
+      setTelefon(""); 
     }
   };
 
@@ -65,7 +61,7 @@ const RegistracijaForma: React.FC<AuthFormProps> = ({ authApi }) => {
     fileInputRef.current?.click();
   };
 
-  // Kada se odabere nova slika, ažurira se avatar u kontekstu
+  // Kada se odabere nova slika, ažurira se avatar 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     setAvatar(file);

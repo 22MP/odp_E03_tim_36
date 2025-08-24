@@ -3,8 +3,10 @@ import { usersApi } from '../../api_services/users/UsersAPIService';
 import { useAuth } from '../../hooks/auth/useAuthHook';
 import type { UserDto } from '../../models/users/UserDto';
 
+// Osnovni URL za slike korisnika
 const IMAGE_BASE_URL = import.meta.env.VITE_API_URL?.replace("/api/v1", "") || "http://localhost:4000";
 
+// Funkcija za izgradnju url-a slike korisnika (avatar)
 function buildImageUrl(path?: string) {
   if (!path) return "";
   return IMAGE_BASE_URL.replace(/\/$/, "") + "/" + path.replace(/^\//, "");
@@ -44,6 +46,7 @@ const ConversationList: React.FC = () => {
         {users.map(u => (
           <div key={u.id} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2 w-full">
             <div className="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden bg-indigo-200">
+              {/* Prikaz slike korisnika (avatar) */}
               {(!!u.slikaUrl && u.slikaUrl.trim() !== "") ? (
                 <img
                   src={buildImageUrl(u.slikaUrl)}
@@ -59,7 +62,7 @@ const ConversationList: React.FC = () => {
             </div>
             <div className="ml-3 flex flex-col text-left flex-1">
               <div className="text-sm font-semibold">{u.korisnickoIme}</div>
-              <div className="text-xs text-gray-500">{u.telefon}</div>
+              <div className="text-xs text-gray-500">{u.imePrezime} | {u.brojTelefona}</div>
             </div>
           </div>
         ))}

@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 
 // Definiši direktorijum za čuvanje avatara
-const uploadDir = path.join(process.cwd(), "uploads/avatars");
+const uploadDir = path.join(process.cwd(), "uploads/slike");
 
 // Ako direktorijum ne postoji, napravi ga
 if (!fs.existsSync(uploadDir)) {
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
   const ext = path.extname(file.originalname);
-  cb(null, `avatar_${Date.now()}${ext}`);
+  cb(null, `slika_${Date.now()}${ext}`);
 }  
 });
 

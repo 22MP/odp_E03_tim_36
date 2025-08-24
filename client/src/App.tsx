@@ -9,6 +9,7 @@ import PrijavaStranica from "./pages/auth/PrijavaStranica";
 import RegistracijaStranica from "./pages/auth/RegistracijaStranica";
 import NotFoundStranica from "./pages/not_found/NotFoundPage";
 import ChatPage from "./pages/chat/ChatPage";
+import EditUserPage from "./pages/editUser/EditUserPage";
 import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
 // TODO: Dodaj rutu za profil kada implementiraš ProfilePage
 
@@ -36,10 +37,11 @@ function App() {
           </ProtectedRoute>
         }
       />
-      {/* Preusmerava na login kao default rutu */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      {/* Catch-all ruta za nepostojeće stranice */}
-      <Route path="*" element={<Navigate to="/404" replace />} />
+  <Route path="/edit-user/:id" element={<EditUserPage />} />
+  {/* Preusmerava na login kao default rutu */}
+  <Route path="/" element={<Navigate to="/login" replace />} />
+  {/* Catch-all ruta za nepostojeće stranice */}
+  <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
   );
 }

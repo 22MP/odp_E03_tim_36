@@ -12,12 +12,12 @@ export class UserRepository implements IUserRepository {
       `;
 
       const [result] = await db.execute<ResultSetHeader>(query, [
-        user.korisnickoIme,
-        user.uloga,
-        user.lozinka,
-        user.brojTelefona,
-        user.imePrezime,
-        user.slika
+  user.korisnickoIme,
+  user.uloga,
+  user.lozinka,
+  user.brojTelefona,
+  user.imePrezime,
+  user.slikaUrl // URL slike korisnika
       ]);
 
       if (result.insertId) {
@@ -28,7 +28,7 @@ export class UserRepository implements IUserRepository {
           user.lozinka,
           user.brojTelefona,
           user.imePrezime,
-          user.slika
+          user.slikaUrl // URL slike korisnika
         );
       }
 
@@ -46,6 +46,7 @@ export class UserRepository implements IUserRepository {
 
       if (rows.length > 0) {
         const row = rows[0];
+        // Kreiraj User sa url-om slike
         return new User(
           row.id,
           row.korisnickoIme,
@@ -53,7 +54,7 @@ export class UserRepository implements IUserRepository {
           row.lozinka,
           row.brojTelefona,
           row.imePrezime,
-          row.slika
+          row.slika as string // URL slike korisnika
         );
       }
 
@@ -103,7 +104,7 @@ export class UserRepository implements IUserRepository {
             row.lozinka,
             row.brojTelefona,
             row.imePrezime,
-            row.slika
+            row.slika as string // URL slike korisnika
           )
       );
     } catch (error) {

@@ -30,9 +30,10 @@ export class UserController {
         res.status(400).json({ success: false, message: "Parametar 'uloga' je obavezan." });
         return;
       }
-      const korisniciPodaci: UserDto[] = await this.userService.getByUloga(uloga);
-      res.status(200).json(korisniciPodaci);
-      return;
+  const korisniciPodaci: UserDto[] = await this.userService.getByUloga(uloga);
+  // Vraća sve podatke korisnika, uključujući broj telefona, ime i prezime, sliku
+  res.status(200).json(korisniciPodaci);
+  return;
     } catch (error) {
       console.error("Error in korisnici:", error);
       res.status(500).json({ success: false, message: "Došlo je do greške na serveru." });

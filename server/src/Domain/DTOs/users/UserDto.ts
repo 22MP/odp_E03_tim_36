@@ -1,9 +1,12 @@
+// DTO za podatke o korisniku
+// DTO za podatke o korisniku
 export class UserDto {
   public constructor(
     public id: number = 0,
     public korisnickoIme: string = "",
     public uloga: string = "user",
-    public telefon: string = "",
-    public slikaUrl?: string
+    public brojTelefona: string = "",
+    public imePrezime: string = "",
+    public slikaUrl?: string  // URL slike korisnika
   ) {}
 }

@@ -1,7 +1,10 @@
+// DTO za podatke o korisniku
+// DTO za podatke o korisniku
 export interface UserDto {
     id: number;
     korisnickoIme: string;
     uloga: string;
-    telefon: string;
-    slikaUrl?: string;
+    brojTelefona: string;
+    imePrezime: string;
+    slikaUrl: string; // URL slike korisnika
 }

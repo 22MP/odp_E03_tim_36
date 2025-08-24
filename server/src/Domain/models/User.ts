@@ -1,3 +1,5 @@
+// Model korisnika
+// Model korisnika
 export class User {
   public constructor(
     public id: number = 0,
@@ -5,7 +7,7 @@ export class User {
     public uloga: string = 'user',
     public lozinka: string = '',
     public brojTelefona: string = '',
-    public imePrezime: string = '',
-    public slika: string = '' // URL do slike
+    public imePrezime: string = '', 
+    public slikaUrl: string = '' 
   ) {}
 }

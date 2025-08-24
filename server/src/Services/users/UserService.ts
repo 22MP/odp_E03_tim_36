@@ -9,7 +9,15 @@ export class UserService implements IUserService {
   async getByUloga(uloga: string): Promise<UserDto[]> {
     const korisnici: User[] = await this.userRepository.getByUloga(uloga);
     const korisniciDto: UserDto[] = korisnici.map(
-      (user) => new UserDto(user.id, user.korisnickoIme, user.uloga, user.brojTelefona, user.slika)
+      // Mapira korisnika na DTO sa svim podacima
+      (user) => new UserDto(
+        user.id,
+        user.korisnickoIme,
+        user.uloga,
+        user.brojTelefona,
+        user.imePrezime,
+        user.slikaUrl
+      )
     );
     return korisniciDto;
   }
