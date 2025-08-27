@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usersApi } from '../../api_services/users/UsersAPIService';
 import { useAuth } from '../../hooks/auth/useAuthHook';
 import type { UserDto } from '../../models/users/UserDto';
+import {ChatProvider,useChat } from '../../contexts/chat/ChatContext';
 
 // Osnovni URL za slike korisnika
 const IMAGE_BASE_URL = import.meta.env.VITE_API_URL?.replace("/api/v1", "") || "http://localhost:4000";
@@ -22,6 +23,7 @@ const RegistrationAvatar = () => (
 const ConversationList: React.FC = () => {
   const [users, setUsers] = useState<UserDto[]>([]);
   const { token, user } = useAuth();
+  const { selectUser, selectedUserId } = useChat();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -44,7 +46,12 @@ const ConversationList: React.FC = () => {
       </div>
       <div className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
         {users.map(u => (
-          <div key={u.id} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2 w-full">
+          <div
+            key={u.id}
+            onClick={() => selectUser(u.id)}
+            className={`flex flex-row items-center hover:bg-gray-100 rounded-xl p-2 w-full cursor-pointer ${selectedUserId === u.id ? "bg-gray-200" : ""
+              }`}
+          >
             <div className="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden bg-indigo-200">
               {/* Prikaz slike korisnika (avatar) */}
               {(!!u.slikaUrl && u.slikaUrl.trim() !== "") ? (

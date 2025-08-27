@@ -13,13 +13,16 @@ CREATE TABLE IF NOT EXISTS users (
     uloga VARCHAR(15) NOT NULL
 );
 -- Kreiranje tabele za poruke
+-- VAN PDF-a: praktična šema poruka za MySQL 8.x
 CREATE TABLE IF NOT EXISTS messages (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    posiljalacID INT NOT NULL,
-    primalacID INT NOT NULL,
-    stanje VARCHAR(20) NOT NULL,
-    vrijeme DATETIME NOT NULL,
-    tekstPoruke TEXT NOT NULL,
-    FOREIGN KEY (posiljalacID) REFERENCES users(id),
-    FOREIGN KEY (primalacID) REFERENCES users(id)
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    posiljalacID    INT UNSIGNED NOT NULL,
+    primalacID      INT UNSIGNED NOT NULL,
+    stanje          ENUM('sent','read') NOT NULL DEFAULT 'sent',
+    vrijemeSlanja   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    vrijemeCitanja  DATETIME NULL,
+    tekstPoruke     TEXT NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_conv_time (posiljalacID, primalacID, vrijemeSlanja),
+    INDEX idx_unread    (primalacID, stanje, vrijemeCitanja)
 );

@@ -1,16 +1,42 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useAuth } from '../../hooks/auth/useAuthHook';
+import { useChat } from '../../contexts/chat/ChatContext';
+import { messageApi } from '../../api_services/messages/MessageAPIService';
+import type { ChatContextType } from '../../types/chat/ChatContextType';
 
 const MessageInput: React.FC = () => {
-  const [message, setMessage] = useState('');
+  const {token} = useAuth();
+  const {selectedUserId, refreshConversation} = useChat();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      // Handle sending message
-      console.log('Sending message:', message);
-      setMessage('');
-    }
-  };
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const canSend = !!token && !!selectedUserId && message.trim().length>0 && !sending;
+
+
+  const handleSend = useCallback(
+    async(e?: React.FormEvent) => {
+      if(e) e.preventDefault();
+      if(!canSend) return;
+
+      try{
+        setSending(true);
+        const ok =await messageApi.sendMessage(token as string, selectedUserId as number, message.trim());
+        if(ok){
+          setMessage(""); //cisti input
+          await refreshConversation(); // povlaci nove poruke
+        }else{
+          console.warn("Slanje poruke nije uspjelo");
+        }
+      }finally{
+        setSending(false);
+      }
+
+    },
+    [canSend,token, selectedUserId, message, refreshConversation]
+
+
+  )
 
   return (
     <div className="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
@@ -39,7 +65,7 @@ const MessageInput: React.FC = () => {
       </div>
       <div className="ml-4">
         <button
-          onClick={handleSubmit}
+          onClick={handleSend}
           className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
         >
           <span>Send</span>

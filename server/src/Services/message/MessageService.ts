@@ -1,0 +1,97 @@
+// server/src/Services/message/MessageService.ts
+import { IMessageService } from "../../Domain/services/messages/IMessageService";
+import { IMessageRepository } from "../../Domain/repositories/messages/IMessageRepository";
+import { MessageDto } from "../../Domain/DTOs/messages/MessageDTO";
+import { Message } from "../../Domain/models/Message";
+
+export class MessageService implements IMessageService {
+  constructor(private readonly repo: IMessageRepository) { }
+
+  /**
+   * Kreira i šalje novu poruku: senderId -> receiverId.
+   * DB automatski upisuje vrijemeSlanja (CURRENT_TIMESTAMP),
+   * repo.create() vraća kompletan red, pa ovde samo mapiramo u DTO.
+   */
+  public async sendMessage(
+    senderId: number,
+    receiverId: number,
+    content: string
+  ): Promise<MessageDto> {
+    // --- minimalna validacija ---
+    const text = (content ?? "").trim();
+    if (!senderId || !receiverId) {
+      throw new Error("Neispravni ID-jevi korisnika.");
+    }
+    if (text.length === 0) {
+      throw new Error("Tekst poruke je prazan.");
+    }
+
+    // Model za upis; vrijemeSlanja će DB ionako prepisati na NOW()
+    const entity = new Message(
+      0,
+      senderId,
+      receiverId,
+      "sent",
+      new Date(),   // placeholder; stvarna vrednost dolazi iz baze posle inserta
+      text,
+      null
+    );
+
+    // Upis u bazu (repo već radi INSERT i potom SELECT tog reda)
+    const saved = await this.repo.create(entity);
+
+    // Mapiranje u DTO koji UI očekuje
+    return new MessageDto(
+      saved.id,
+      saved.posiljalacID,
+      saved.primalacID,
+      saved.stanje as "sent" | "read",
+      new Date(saved.vrijemeSlanja).toISOString(),
+      saved.vrijemeCitanja ? new Date(saved.vrijemeCitanja).toISOString() : null,
+      saved.tekstPoruke
+    );
+
+  }
+
+  /**
+   * Otvara chat između prijavljenog korisnika (currentUserId) i sagovornika (otherUserId).
+   * 1) čita istoriju (sortirano po vrijemeSlanja),
+   * 2) mapira u DTO,
+   * 3) označava poruke kao pročitane (markConversationAsRead).
+   */
+  public async openChat(
+    currentUserId: number,
+    otherUserId: number
+  ): Promise<MessageDto[]> {
+    // 1) Učitavanje istorije
+    const rows: Message[] = await this.repo.getByResIDSenID(
+      currentUserId,
+      otherUserId
+    );
+
+    // 2) Mapiranje u DTO (vreme → ISO string)
+    const messages: MessageDto[] = rows.map(m => new MessageDto(
+      m.id,
+      m.posiljalacID,
+      m.primalacID,
+      m.stanje as "sent" | "read",
+      new Date(m.vrijemeSlanja).toISOString(),
+      m.vrijemeCitanja ? new Date(m.vrijemeCitanja).toISOString() : null,
+      m.tekstPoruke
+    ));
+
+
+    // 3) Označi sve poruke koje je currentUser primio od otherUser kao pročitane
+    await this.repo.markConversationAsRead(otherUserId, currentUserId);
+
+    return messages;
+  }
+
+  /**
+   * (opciono) Aggregat: ukupan broj nepročitanih za korisnika.
+   * Može ti zatrebati za badge na listi razgovora.
+   */
+  public async unreadCountTotal(userId: number): Promise<number> {
+    return this.repo.unreadCountTotal(userId);
+  }
+}

@@ -11,6 +11,7 @@ import NotFoundStranica from "./pages/not_found/NotFoundPage";
 import ChatPage from "./pages/chat/ChatPage";
 import EditUserPage from "./pages/editUser/EditUserPage";
 import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
+
 // TODO: Dodaj rutu za profil kada implementiraš ProfilePage
 
 function App() {
@@ -24,7 +25,9 @@ function App() {
         path="/user-dashboard"
         element={
           <ProtectedRoute requiredRole="user">
-            <ChatPage />
+            
+              <ChatPage />
+            
           </ProtectedRoute>
         }
       />
@@ -33,15 +36,17 @@ function App() {
         path="/admin-dashboard"
         element={
           <ProtectedRoute requiredRole="admin">
-            <ChatPage />
+            
+              <ChatPage />
+            
           </ProtectedRoute>
         }
       />
-  <Route path="/edit-user/:id" element={<EditUserPage />} />
-  {/* Preusmerava na login kao default rutu */}
-  <Route path="/" element={<Navigate to="/login" replace />} />
-  {/* Catch-all ruta za nepostojeće stranice */}
-  <Route path="*" element={<Navigate to="/404" replace />} />
+      <Route path="/edit-user/:id" element={<EditUserPage />} />
+      {/* Preusmerava na login kao default rutu */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Catch-all ruta za nepostojeće stranice */}
+      <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
   );
 }
