@@ -10,7 +10,7 @@ export default function ChatPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || !user) { 
       navigate("/login");
     }
   }, [isAuthenticated, user, navigate]);

@@ -11,14 +11,38 @@ export class MessageController {
     }
 
     private initialize(): void {
+
         this.router.get("/messages/conversation/:userId", authenticate, this.openChat.bind(this));
         this.router.post("/messages", authenticate, this.sendMessage.bind(this));
 
+        this.router.get("/messages/unread/total", authenticate, this.unreadTotal.bind(this));
+        this.router.get("/messages/unread/map", authenticate, this.unreadMap.bind(this));
+    }
+
+    private async unreadMap(req:Request, res:Response){
+        try{
+            const me = req.user?.id!;
+            const total = await this.service.unreadCountsMapForUser(me);
+
+            res.status(200).json({success:true, data:total});
+        }catch{
+            res.status(500).json({success:false, message:"Greska na serveru"});
+        }
+    }
+
+    private async unreadTotal(req:Request, res:Response){
+        try{
+            const me =req.user?.id!;
+            const total = await this.service.unreadCountTotal(me);
+            res.status(200).json({success:true, data: total});            
+        }catch{
+            res.status(500).json({success:false, message:"Greska na serveru"});
+        }
     }
 
     private async sendMessage(req: Request, res: Response): Promise<void> {
         try {
-            const senderId = (req as any).user?.id as number;   // iz JWT-a (authenticate middleware)
+            const senderId = (req as any).user?.id as number;   
             const { receiverId, content } = req.body as { receiverId?: number; content?: string };
 
             // Minimalna validacija 
@@ -50,6 +74,7 @@ export class MessageController {
             }
 
             const messages = await this.service.openChat(me, otherId);
+            
             res.status(200).json({ success: true, data: messages });
         } catch (error) {
             res.status(500).json({ success: false, message: "Greska na serveru" });

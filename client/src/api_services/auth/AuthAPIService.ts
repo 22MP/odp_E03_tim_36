@@ -1,5 +1,6 @@
 import type { AuthResponse } from "../../types/auth/AuthResponse";
 import type { IAuthAPIService } from "./IAuthAPIService";
+import type { UserDto } from "../../models/users/UserDto";
 import axios from "axios";
 
 // URL API-ja, vodi racuna da se poklapa sa backend rutom!
@@ -47,4 +48,16 @@ export const authApi: IAuthAPIService = {
       };
     }
   },
+  async update(token: string, data: FormData | { imePrezime?: string; brojTelefona?: string; }):Promise<any> {
+  
+  const raw = (token ?? "").replace(/^Bearer\s+/i, "").trim(); // očisti eventualni "Bearer "
+  if (!raw) throw new Error("Nema JWT tokena – proveri kako ga čitaš iz AuthContext/localStorage.");
+
+  const headers = { Authorization: `Bearer ${raw}` };
+
+  // Axios sam postavlja Content-Type (JSON za objekat, multipart za FormData)
+  const res = await axios.patch(`${API_URL}/me`, data as any, { headers });
+  
+  return res.data as { success: boolean; data: UserDto; token?: string; message?: string };
+}
 };

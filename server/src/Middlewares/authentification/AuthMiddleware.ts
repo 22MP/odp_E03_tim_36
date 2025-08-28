@@ -22,12 +22,16 @@ export const authenticate = (
 ): void => {
   const authHeader = req.headers.authorization;
 
+  
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ success: false, message: "Nedostaje token" });
     return;
   }
 
   const token = authHeader.split(" ")[1];
+
+   
 
   try {
     const decoded = jwt.verify(

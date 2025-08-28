@@ -5,7 +5,7 @@ import type { IUsersAPIService } from "./IUsersAPIService";
 const API_URL: string = import.meta.env.VITE_API_URL + "user";
 
 export const usersApi: IUsersAPIService = {
-  async getSviKorisnici(token: string, uloga: string ): Promise<UserDto[]> {
+  async getSviKorisnici(token: string, uloga: string): Promise<UserDto[]> {
     try {
       const res = await axios.get<UserDto[]>(`${API_URL}s?uloga=${uloga}`,
         {
@@ -19,4 +19,7 @@ export const usersApi: IUsersAPIService = {
       return [];
     }
   },
+
+  
+
 };

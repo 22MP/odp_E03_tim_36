@@ -1,5 +1,5 @@
 import { UserAuthDataDto } from "../../DTOs/auth/UserAuthDataDto";
-
+import { UserDto } from "../../DTOs/users/UserDto";
 /**
  * Interfejs za Auth servis.
  */
@@ -30,4 +30,6 @@ export interface IAuthService {
         brojTelefona: string,
         slika: string
     ): Promise<UserAuthDataDto>;
+
+    Update(userId: number,  body: { imePrezime?: string; brojTelefona?: string },slikaRelUrl?: string):Promise<UserDto>;
 }

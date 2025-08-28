@@ -2,26 +2,35 @@
 import React from "react";
 import type { MessageDTO } from "../../models/messages/MessageDTO";
 
+// Font Awesome za dvostruke kvačice
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckDouble } from "@fortawesome/free-solid-svg-icons";
+
 interface MessageItemProps {
   message: MessageDTO;
   isOwnMessage: boolean;
 }
 
-/**
- * Pomocna: sigurno formatiranje ISO stringa → labela za prikaz.
- * Ako iz bilo kog razloga stigne nevalidan datum, vraca "—" umesto "Invalid Date".
- */
-function formatTime(iso?: string | null) {
-  if (!iso) return "—";
+function formatDateTime(iso?: string | null) {
+  if (!iso) return { date: "—", time: "—" };
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return "—";
-  // samo sat:min (kompaktno u balončiću)
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (isNaN(d.getTime())) return { date: "—", time: "—" };
+
+  const date = d.toLocaleDateString("sr-RS", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  return { date, time };
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ message, isOwnMessage }) => {
-  const timeLabel = formatTime(message.vrijemeSlanja);
-  const seen = isOwnMessage && message.stanje === "read";
+  const { date, time } = formatDateTime(message.vrijemeSlanja);
+
+  const showChecks = isOwnMessage;
+  const isRead = message.stanje === "read";
 
   return (
     <div
@@ -33,9 +42,9 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, isOwnMessage }) => {
         className={`flex items-center ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}
         style={{ width: "100%" }}
       >
-        {/* Avatar inicijal – ostavio sam tvoj 'Y'/'T' placeholder */}
+        {/* Avatar placeholder */}
         <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 text-white flex-shrink-0">
-          {isOwnMessage ? "Y" : "T"}
+          {isOwnMessage ? "Y" : "O"}
         </div>
 
         {/* Balon poruke */}
@@ -48,15 +57,18 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, isOwnMessage }) => {
           {/* Tekst poruke */}
           <div className="whitespace-pre-wrap break-words">{message.tekstPoruke}</div>
 
-          {/* Vreme slanja (sigurno formatirano) */}
-          <div className="text-xs text-gray-400 mt-1">{timeLabel}</div>
-
-          {/* Seen badge – samo za sopstvene poruke i samo kada je stanje 'read' */}
-          {seen && (
-            <div className="absolute text-[10px] bottom-0 right-0 -mb-5 mr-2 text-gray-500 select-none">
-              Seen
-            </div>
-          )}
+          {/* Datum + vreme + dvostruke kvačice */}
+          <div className="text-xs text-gray-400 mt-1 flex items-center justify-between">
+            <span>{date} {time}</span>
+            {showChecks && (
+              <FontAwesomeIcon
+                icon={faCheckDouble}
+                className={`ml-2 w-4 h-4 ${
+                  isRead ? "text-blue-500" : "text-gray-400"
+                }`}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

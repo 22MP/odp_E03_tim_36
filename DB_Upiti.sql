@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     korisnickoIme VARCHAR(50) UNIQUE NOT NULL,
     lozinka VARCHAR(500) NOT NULL,
-    brojTelefona VARCHAR(20),
-    imePrezime VARCHAR(100),
+    brojTelefona VARCHAR(20) UNIQUE,
+    imePrezime VARCHAR(100) NOT NULL,
     slika VARCHAR(255),
     uloga VARCHAR(15) NOT NULL
 );

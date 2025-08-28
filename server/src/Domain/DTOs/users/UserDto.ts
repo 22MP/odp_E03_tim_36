@@ -1,5 +1,4 @@
-// DTO za podatke o korisniku
-// DTO za podatke o korisniku
+
 export class UserDto {
   public constructor(
     public id: number = 0,

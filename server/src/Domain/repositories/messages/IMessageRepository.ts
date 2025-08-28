@@ -51,4 +51,11 @@ export interface IMessageRepository {
 	 * @returns Promise koji vraća broj nepročitanih poruka.
 	 */
 	unreadCountTotal(userId: number): Promise<number>;
+
+
+	
+
+	/**otherUserId -> count za sve koji su mi slali. */
+  unreadCountsMapForUser(meId: number): Promise<Record<number, number>>;
+
 }

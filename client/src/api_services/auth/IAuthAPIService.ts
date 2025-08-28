@@ -13,4 +13,5 @@ export interface IAuthAPIService {
    * Registracija korisnika. Sva polja, uključujući sliku, šalju se kao FormData.
    */
   registracija(formData: FormData): Promise<AuthResponse>;
+  update(token:string, data:FormData | { imePrezime?: string; brojTelefona?: string }):Promise<any>; 
 }

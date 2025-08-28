@@ -7,4 +7,7 @@ export interface IUserService {
    * @returns Podatke o korisnicima u vidu liste.
    */
   getByUloga(uloga: string): Promise<UserDto[]>;
+
+  
+
 }

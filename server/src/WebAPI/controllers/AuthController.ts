@@ -2,8 +2,11 @@ import { Request, Response, Router } from 'express';
 import { IAuthService } from '../../Domain/services/auth/IAuthService';
 import { validacijaPodatakaAuth } from '../validators/auth/LogInValidator';
 import jwt from "jsonwebtoken";
-import { uploadAvatar } from '../../Middlewares/uploadAvatar/UploadAvatar';
+import {uploadAvatar} from "../../Middlewares/Upload/upload" 
 import { validacijaPodatakaRegistracija } from '../validators/auth/RegValidator';
+import { authenticate } from '../../Middlewares/authentification/AuthMiddleware';
+import { validacijaPodatakaIzmjene } from '../validators/auth/EditValidator';
+import { Message } from '../../Domain/models/Message';
 
 export class AuthController {
   private router: Router;
@@ -19,6 +22,7 @@ export class AuthController {
     this.router.post('/auth/login', this.prijava.bind(this));
     // Middleware za upload slike - mora biti pre handlera
     this.router.post('/auth/register', uploadAvatar.single("slika"), this.registracija.bind(this));
+    this.router.patch("/auth/me", authenticate, uploadAvatar.single("slika"), this.patchMe.bind(this));
   }
 
   /**
@@ -56,6 +60,40 @@ export class AuthController {
       res.status(500).json({success: false, message: "Došlo je do greške na serveru."});
     }
   }
+
+  private async patchMe(req: Request, res: Response) {
+    try {
+      const meId = (req as any).user.id as number;
+      const { imePrezime, brojTelefona } = (req.body ?? {}) as { imePrezime?: string; brojTelefona?: string; };
+      const slikaUrl = req.file ? `/uploads/slike/${req.file.filename}` : undefined;
+
+      const rezultat = validacijaPodatakaIzmjene(imePrezime, brojTelefona, slikaUrl);
+      if(!rezultat.uspesno){
+        res.status(400).json({success:false, message:rezultat.poruka});
+      }
+  
+      const dto = await this.authService.Update(meId, { imePrezime, brojTelefona }, slikaUrl);
+  
+      
+      const token = jwt.sign(
+        {
+          id: dto.id,
+          korisnickoIme: dto.korisnickoIme,
+          uloga: dto.uloga,
+          slikaUrl: dto.slikaUrl ?? null,
+          brojTelefona: dto.brojTelefona ?? null,
+          imePrezime: dto.imePrezime ?? null,
+        },
+        process.env.JWT_SECRET ?? "",
+        { expiresIn: "6h" }
+      );
+  
+      return res.json({ success: true, data: dto, token }); 
+    } catch (e: any) {
+      return res.status(500).json({ success: false, message: e?.message ?? "Greška pri izmjeni profila" });
+    }
+  }
+  
 
   /**
    * Registracija korisnika (sa slikom)

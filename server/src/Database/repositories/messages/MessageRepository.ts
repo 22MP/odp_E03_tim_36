@@ -4,11 +4,7 @@ import { RowDataPacket, ResultSetHeader } from "mysql2";
 import db from "../../connection/DbConnectionPool";
 
 export class MessageRepository implements IMessageRepository {
-  /**
-   * Kreira novu poruku.
-   * VAŽNO: vrijemeSlanja upisuje baza (DEFAULT CURRENT_TIMESTAMP), zato ga ne šaljemo u INSERT-u.
-   * Nakon inserta radimo SELECT da povučemo stvarnu vrijednost vrijemeSlanja iz DB.
-   */
+
   async create(message: Message): Promise<Message> {
     try {
       const insertSql = `
@@ -18,15 +14,15 @@ export class MessageRepository implements IMessageRepository {
       const [result] = await db.execute<ResultSetHeader>(insertSql, [
         message.posiljalacID,
         message.primalacID,
-        message.stanje,        // "sent" | "read"
+        message.stanje,        
         message.tekstPoruke,
       ]);
 
       if (!result.insertId) {
-        return new Message(); // neuspeh
+        return new Message();
       }
 
-      // Povuci kompletan red (bez aliasa) da dobiješ vrijemeSlanja iz baze
+
       const selectSql = `
         SELECT id, posiljalacID, primalacID, stanje, vrijemeSlanja, vrijemeCitanja, tekstPoruke
           FROM messages
@@ -42,7 +38,7 @@ export class MessageRepository implements IMessageRepository {
         row.posiljalacID,
         row.primalacID,
         row.stanje,
-        new Date(row.vrijemeSlanja), // mapiramo DATETIME -> JS Date u polje "vrijeme"
+        new Date(row.vrijemeSlanja), 
         row.tekstPoruke
       );
     } catch {
@@ -63,18 +59,21 @@ export class MessageRepository implements IMessageRepository {
          ORDER BY vrijemeSlanja ASC
       `;
       const [rows] = await db.execute<RowDataPacket[]>(sql, [senID, resID, resID, senID]);
-
-      return rows.map(
+      if(rows.length>0){
+        return rows.map(
         (row) =>
           new Message(
             row.id,
             row.posiljalacID,
             row.primalacID,
             row.stanje,
-            new Date(row.vrijemeSlanja), // bez aliasa; TS mapiranje
+            new Date(row.vrijemeSlanja), 
             row.tekstPoruke
           )
       );
+      }
+      return [];
+      
     } catch {
       return [];
     }
@@ -124,9 +123,7 @@ export class MessageRepository implements IMessageRepository {
 
   /**
    * Ukupno nepročitanih poruka za korisnika (primalac = userId i stanje='sent').
-   * Ako želiš striktno po "nepročitano", moguće je filtrirati i po vrijemeCitanja IS NULL,
-   * ali pošto status već nosi 'sent'/'read', ovo je dovoljno i brže sa indeksom.
-   */
+   * */
   async unreadCountTotal(userId: number): Promise<number> {
     try {
       const sql = `
@@ -142,4 +139,31 @@ export class MessageRepository implements IMessageRepository {
       return 0;
     }
   }
+
+ 
+
+  async unreadCountsMapForUser(meId: number): Promise<Record<number, number>> {
+    try {
+      const sql = `
+        SELECT posiljalacID AS otherUserId, COUNT(*) AS cnt
+          FROM messages
+         WHERE primalacID = ?
+           AND stanje = 'sent'
+         GROUP BY posiljalacID
+      `;
+      const [rows] = await db.execute<RowDataPacket[]>(sql, [meId]);
+      const out: Record<number, number> = {};
+      for (const r of rows as any[]) {
+        out[Number(r.otherUserId)] = Number(r.cnt);
+      }
+      return out;
+    } catch {
+      return {};
+    }
+  }
+
+
+
+
+
 }

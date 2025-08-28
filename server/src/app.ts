@@ -46,9 +46,14 @@ const authController = new AuthController(authService);
 const userController = new UserController(userService);
 const messageController = new MessageController(messageService);
 
+
 // Registering routes
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use('/api/v1', authController.getRouter());
 app.use('/api/v1', userController.getRouter());
 app.use('/api/v1', messageController.getRouter());
+
+
+
 
 export default app;

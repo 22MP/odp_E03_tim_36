@@ -2,8 +2,57 @@ import { IUserRepository } from "../../../Domain/repositories/users/IUserReposit
 import { User } from "../../../Domain/models/User";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
 import db from "../../connection/DbConnectionPool";
+import { Pool } from "mysql2/typings/mysql/lib/Pool";
 
 export class UserRepository implements IUserRepository {
+
+
+  public async updatePartial(
+    id: number,
+    patch: { imePrezime?: string; brojTelefona?: string; slika?: string; }
+  ): Promise<any> {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (patch.imePrezime !== undefined) {
+      fields.push("imePrezime = ?");
+      values.push(patch.imePrezime);
+    }
+    if (patch.brojTelefona !== undefined) {
+      fields.push("brojTelefona = ?");
+      values.push(patch.brojTelefona);
+    }
+    if (patch.slika !== undefined) {
+      fields.push("slika = ?");
+      values.push(patch.slika);
+    }
+
+    // ako nema izmjena — vrati trenutnog korisnika
+    if (fields.length === 0) {
+      return this.getById(id);
+    }
+
+    const query = `UPDATE users SET ${fields.join(", ")} WHERE id = ?`;
+    values.push(id);
+
+  
+
+    try {
+      const [result] = await db.execute<ResultSetHeader>(query, values);
+      if(result){
+      const u =await this.getById(id);
+      return u; 
+      }
+      
+    } catch (err) {
+      return new User();
+    }
+
+    
+  }
+
+
+
   async create(user: User): Promise<User> {
     try {
       const query = `
@@ -12,12 +61,12 @@ export class UserRepository implements IUserRepository {
       `;
 
       const [result] = await db.execute<ResultSetHeader>(query, [
-  user.korisnickoIme,
-  user.uloga,
-  user.lozinka,
-  user.brojTelefona,
-  user.imePrezime,
-  user.slikaUrl // URL slike korisnika
+        user.korisnickoIme,
+        user.uloga,
+        user.lozinka,
+        user.brojTelefona,
+        user.imePrezime,
+        user.slikaUrl 
       ]);
 
       if (result.insertId) {
@@ -28,14 +77,14 @@ export class UserRepository implements IUserRepository {
           user.lozinka,
           user.brojTelefona,
           user.imePrezime,
-          user.slikaUrl // URL slike korisnika
+          user.slikaUrl 
         );
       }
 
       return new User();
     } catch (error) {
       console.error("UserRepository.create error:", error);
-      throw error;
+      return new User();
     }
   }
 
@@ -47,6 +96,7 @@ export class UserRepository implements IUserRepository {
       if (rows.length > 0) {
         const row = rows[0];
         // Kreiraj User sa url-om slike
+        
         return new User(
           row.id,
           row.korisnickoIme,
@@ -61,7 +111,7 @@ export class UserRepository implements IUserRepository {
       return new User();
     } catch (error) {
       console.error("UserRepository.getById error:", error);
-      throw error;
+      return new User();
     }
   }
 
@@ -86,16 +136,16 @@ export class UserRepository implements IUserRepository {
       return new User();
     } catch (error) {
       console.error("UserRepository.getByUsername error:", error);
-      throw error;
+      return new User();
     }
   }
 
-  async getByUloga(uloga: string): Promise<User[]> {   // ✅ restored method
+  async getByUloga(uloga: string): Promise<User[]> {   
     try {
       const query = `SELECT * FROM users WHERE uloga = ?`;
       const [rows] = await db.execute<RowDataPacket[]>(query, [uloga]);
-
-      return rows.map(
+      if(rows.length>0){
+        return rows.map(
         (row: any) =>
           new User(
             row.id,
@@ -104,12 +154,18 @@ export class UserRepository implements IUserRepository {
             row.lozinka,
             row.brojTelefona,
             row.imePrezime,
-            row.slika as string // URL slike korisnika
+            row.slika as string 
           )
       );
+      }
+
+      return [];
+      
     } catch (error) {
       console.error("UserRepository.getByUloga error:", error);
-      throw error;
+      return [];
     }
   }
+
+
 }

@@ -26,21 +26,21 @@ export class MessageService implements IMessageService {
       throw new Error("Tekst poruke je prazan.");
     }
 
-    // Model za upis; vrijemeSlanja će DB ionako prepisati na NOW()
+
     const entity = new Message(
       0,
       senderId,
       receiverId,
       "sent",
-      new Date(),   // placeholder; stvarna vrednost dolazi iz baze posle inserta
+      new Date(),
       text,
       null
     );
 
-    // Upis u bazu (repo već radi INSERT i potom SELECT tog reda)
+
     const saved = await this.repo.create(entity);
 
-    // Mapiranje u DTO koji UI očekuje
+
     return new MessageDto(
       saved.id,
       saved.posiljalacID,
@@ -87,10 +87,13 @@ export class MessageService implements IMessageService {
     return messages;
   }
 
-  /**
-   * (opciono) Aggregat: ukupan broj nepročitanih za korisnika.
-   * Može ti zatrebati za badge na listi razgovora.
-   */
+  
+
+  public async unreadCountsMapForUser(meId: number): Promise<Record<number, number>> {
+    return this.repo.unreadCountsMapForUser(meId);
+  }
+
+
   public async unreadCountTotal(userId: number): Promise<number> {
     return this.repo.unreadCountTotal(userId);
   }

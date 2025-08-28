@@ -6,5 +6,10 @@ export interface IMessageAPIService{
   getConversation(token: string, otherUserId: number): Promise<MessageDTO[]>;
 
   /** (Priprema) Slanje poruke — BACK za sada nema POST rutu pa ostavljamo TODO. */
-  sendMessage?(token: string, receiverId: number, content: string): Promise<boolean>;
+  sendMessage(token: string, receiverId: number, content: string): Promise<boolean>;
+
+  /**Povlaci ukupan broj neprocitanih poruka koje korisnik ima */
+  getUnreadTotal(token:string):Promise<number>;
+  /**Povlaci broj neprocitanih poruka koje korisnik ima po konverzaciji */
+  getUnreadMap(token:string):Promise<Record<number,number>>;
 }

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/auth/useAuthHook";
+import { useMemo } from "react";
 
 export interface UserProfileProps {}
 
@@ -19,10 +20,12 @@ const UserProfile: React.FC<UserProfileProps> = () => {
   const navigate = useNavigate();
 
   // Izračunaj URL za sliku korisnika 
-  const userImage =
-    user?.slikaUrl && user.slikaUrl.trim() !== ""
-      ? buildImageUrl(user.slikaUrl)
-      : null;
+  const userImage = useMemo(() => {
+  if (!user?.slikaUrl) return null;
+  const base = buildImageUrl(user.slikaUrl);
+  // promeni se samo kada se promeni putanja slike
+  return `${base}?t=${encodeURIComponent(user.slikaUrl)}`
+}, [user?.slikaUrl]);
 
   const handleEditClick = () => {
     // Otvori edit user page
