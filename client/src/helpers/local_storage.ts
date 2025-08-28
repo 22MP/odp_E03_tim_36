@@ -1,30 +1,30 @@
-function SačuvajVrednostPoKljuču(key: string, value: string): boolean {
+function SacuvajVrednostPoKljucu(key: string, value: string): boolean {
   try {
-    localStorage.setItem(key, value)
-    return true
+    localStorage.setItem(key, value);
+    return true;
   } catch (error) {
-    console.error(`Грешка при чувању у localStorage за кључ '${key}':`, error)
-    return false
+    console.error(`Greska pri cuvanju u localStorage za kljuc '${key}':`, error);
+    return false;
   }
 }
 
-function PročitajVrednostPoKljuču(key: string): string | null {
+function ProcitajVrednostPoKljucu(key: string): string | null {
   try {
-    return localStorage.getItem(key)
+    return localStorage.getItem(key);
   } catch (error) {
-    console.error(`Грешка при читању из localStorage за кључ '${key}':`, error)
-    return null
+    console.error(`Greska pri citanju iz localStorage za kljuc '${key}':`, error);
+    return null;
   }
 }
 
-function ObrišiVrednostPoKljuču(key: string): boolean {
+function ObrisiVrednostPoKljucu(key: string): boolean {
   try {
-    localStorage.removeItem(key)
-    return true
+    localStorage.removeItem(key);
+    return true;
   } catch (error) {
-    console.error(`Грешка при брисању из localStorage за кључ '${key}':`, error)
-    return false
+    console.error(`Greska pri brisanju iz localStorage za kljuc '${key}':`, error);
+    return false;
   }
 }
 
-export { SačuvajVrednostPoKljuču, PročitajVrednostPoKljuču, ObrišiVrednostPoKljuču };
+export { SacuvajVrednostPoKljucu, ProcitajVrednostPoKljucu, ObrisiVrednostPoKljucu };

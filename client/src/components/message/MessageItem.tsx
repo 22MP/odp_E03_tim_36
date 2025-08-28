@@ -1,8 +1,6 @@
-// client/src/components/messages/MessageItem.tsx
+
 import React from "react";
 import type { MessageDTO } from "../../models/messages/MessageDTO";
-
-// Font Awesome za dvostruke kvačice
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckDouble } from "@fortawesome/free-solid-svg-icons";
 

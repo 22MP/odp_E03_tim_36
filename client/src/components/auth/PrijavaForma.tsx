@@ -11,7 +11,7 @@ export function PrijavaForma({ authApi }: AuthFormProps) {
   const [greska, setGreska] = useState("");
   const { login } = useAuth();
 
-  // Submit funkcija za formu
+ 
   const podnesiFormu = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -22,7 +22,7 @@ export function PrijavaForma({ authApi }: AuthFormProps) {
       return;
     }
 
-    // Poziv API-ja
+    
     const odgovor = await authApi.prijava(korisnickoIme, lozinka);
     if (odgovor.success && odgovor.data) {
       login(odgovor.data);

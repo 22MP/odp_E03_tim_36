@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../hooks/auth/useAuthHook';
 import { useChat } from '../../contexts/chat/ChatContext';
-import { messageApi } from '../../api_services/messages/MessageAPIService';
+import type { IMessageAPIService } from '../../api_services/messages/IMessageAPIService';
 
-
-const MessageInput: React.FC = () => {
+type Props={
+  messageAPI:IMessageAPIService
+}
+const MessageInput: React.FC<Props> = ({messageAPI}) => {
   const {token} = useAuth();
   const {selectedUserId, refreshConversation} = useChat();
 
@@ -21,7 +23,7 @@ const MessageInput: React.FC = () => {
 
       try{
         setSending(true);
-        const ok =await messageApi.sendMessage(token as string, selectedUserId as number, message.trim());
+        const ok =await messageAPI.sendMessage(token as string, selectedUserId as number, message.trim());
         if(ok){
           setMessage(""); //cisti input
           await refreshConversation(); // povlaci nove poruke

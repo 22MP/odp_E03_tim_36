@@ -4,11 +4,11 @@ import { jwtDecode } from "jwt-decode";
 import type { AuthContextType } from "../../types/auth/AuthContext";
 import type { AuthUser } from "../../types/auth/AuthUser";
 import type { JwtTokenClaims } from "../../types/auth/JwtTokenClaims";
-import type { UserDto } from "../../models/users/UserDto";
+
 import {
-  ObrišiVrednostPoKljuču,
-  PročitajVrednostPoKljuču,
-  SačuvajVrednostPoKljuču,
+  ObrisiVrednostPoKljucu,
+  ProcitajVrednostPoKljucu,
+  SacuvajVrednostPoKljucu,
 } from "../../helpers/local_storage";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,17 +46,7 @@ const isTokenExpired = (token: string): boolean => {
   }
 };
 
-/** Mapiranje server-side UserDto -> AuthUser (što čuva AuthContext). */
-function mapDtoToAuthUser(dto: UserDto): AuthUser {
-  return {
-    id: dto.id,
-    korisnickoIme: dto.korisnickoIme,
-    uloga: dto.uloga,
-    slikaUrl: dto.slikaUrl ?? null,
-    imePrezime: dto.imePrezime ?? null,
-    brojTelefona: dto.brojTelefona ?? null,
-  };
-}
+
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -66,10 +56,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 1) Pri startu pročitaj token iz localStorage i, ako je validan, popuni user iz claim-ova.
   useEffect(() => {
-    const savedToken = PročitajVrednostPoKljuču("authToken");
+    const savedToken = ProcitajVrednostPoKljucu("authToken");
     if (savedToken) {
       if (isTokenExpired(savedToken)) {
-        ObrišiVrednostPoKljuču("authToken");
+        ObrisiVrednostPoKljucu("authToken");
         setIsLoading(false);
         return;
       }
@@ -85,7 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           brojTelefona: claims.brojTelefona ?? null,
         });
       } else {
-        ObrišiVrednostPoKljuču("authToken");
+        ObrisiVrednostPoKljucu("authToken");
       }
     }
     setIsLoading(false);
@@ -107,7 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         imePrezime: claims.imePrezime ?? null,
         brojTelefona: claims.brojTelefona ?? null,
       });
-      SačuvajVrednostPoKljuču("authToken", newToken);
+      SacuvajVrednostPoKljucu("authToken", newToken);
     } else {
       console.error("Nevažeći ili istekao token");
     }
@@ -117,23 +107,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     setToken(null);
     setUser(null);
-    ObrišiVrednostPoKljuču("authToken");
+    ObrisiVrednostPoKljucu("authToken");
   };
 
-  /**
-   * NOVO: Direktno osveženje korisnika iz UserDto responsa
-   * (koristi se kada **nema** novog tokena iz update profila).
-   */
-  const applyUserUpdate = (dto: UserDto) => {
-  setUser({
-    id: dto.id,
-    korisnickoIme: dto.korisnickoIme,
-    uloga: dto.uloga,
-    slikaUrl: dto.slikaUrl ?? null,
-    imePrezime: dto.imePrezime ?? null,
-    brojTelefona: dto.brojTelefona ?? null,
-  });}
-
+  
   const isAuthenticated = !!user && !!token;
 
   const value: AuthContextType = {
@@ -143,11 +120,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     isAuthenticated,
     isLoading,
-
-    // 👉 dodato u tvoj tip:
-    // - kad update endpoint NE vraća token: pozovi applyUserUpdate(response.user)
-    // - kad vraća token: pozovi login(response.token)
-    applyUserUpdate,
   } as AuthContextType;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

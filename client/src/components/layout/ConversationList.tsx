@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { usersApi } from '../../api_services/users/UsersAPIService';
 import { useAuth } from '../../hooks/auth/useAuthHook';
 import type { UserDto } from '../../models/users/UserDto';
 import { useChat } from '../../contexts/chat/ChatContext';
 import UnreadMessagesIndicator from './UnreadMessagesIndicator';
+import type { IUsersAPIService } from '../../api_services/users/IUsersAPIService';
+
+type Props={
+  usersApi:IUsersAPIService;
+}
 
 const IMAGE_BASE_URL =
   import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:4000';
@@ -34,7 +38,7 @@ function GlobalUnreadBadge({ count }: { count: number }) {
   );
 }
 
-const ConversationList: React.FC = () => {
+const ConversationList: React.FC<Props> = ({usersApi}) => {
   const [users, setUsers] = useState<UserDto[]>([]);
   const { token, user } = useAuth();
   const { selectUser, selectedUserId, unreadMap } = useChat();

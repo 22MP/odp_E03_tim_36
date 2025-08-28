@@ -3,8 +3,13 @@ import UserProfile from './UserProfile';
 import ConversationList from './ConversationList';
 import { useAuth } from '../../hooks/auth/useAuthHook';
 import { useNavigate } from 'react-router-dom';
+import type { IUsersAPIService } from '../../api_services/users/IUsersAPIService'; 
 
-const Sidebar: React.FC = () => {
+interface SidebarProps{
+  usersApi: IUsersAPIService;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({usersApi}:SidebarProps) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -31,7 +36,7 @@ const Sidebar: React.FC = () => {
         <UserProfile />
         {/* Naslov + lista: lista dobija flex-1 + overflow i popunjava do dna */}
         <div className="mt-4 flex-1 min-h-0">
-          <ConversationList />
+          <ConversationList usersApi={usersApi} />
         </div>
       </div>
 

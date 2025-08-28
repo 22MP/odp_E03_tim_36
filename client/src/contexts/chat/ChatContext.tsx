@@ -21,7 +21,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<MessageDTO[]>([]);
   const [unreadMap, setUnreadMap] = useState<Record<number, number>>({});
 
-  // ====== akcije ======
 
   // Selekcija chata (odmah poništi badge za tog user-a u UI)
   const selectUser = useCallback((id: number) => {

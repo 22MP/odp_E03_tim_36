@@ -1,13 +1,15 @@
-// Forma za izmenu korisničkog profila
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/auth/useAuthHook";
-import { PročitajVrednostPoKljuču } from "../../helpers/local_storage";
+import { ProcitajVrednostPoKljucu } from "../../helpers/local_storage";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { authApi } from "../../api_services/auth/AuthAPIService";
 import { validacijaPodatakaIzmjene } from "../../api_services/validators/auth/EditValidator";
+import type { IAuthAPIService } from "../../api_services/auth/IAuthAPIService";
 
-// Helper za izgradnju punog URL-a slike
+
+type Props ={
+  authApi:IAuthAPIService;
+}
 const IMAGE_BASE_URL =
   import.meta.env.VITE_API_URL?.replace("/api/v1", "") || "http://localhost:4000";
 
@@ -18,38 +20,32 @@ function buildImageUrl(path?: string) {
     : IMAGE_BASE_URL.replace(/\/$/, "") + "/" + path.replace(/^\//, "");
 }
 
-const IzmjenaForma: React.FC = () => {
+const IzmjenaForma: React.FC<Props> = ({authApi}) => {
   const { user: authUser, token } = useAuth();
-
   const [imePrezime, setImePrezime] = useState("");
   const [brojTelefona, setBrojTelefona] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
-  const { login, applyUserUpdate } = useAuth();
-
-  // ✅ Novo: lokalni preview izabranog fajla
+  const { login} = useAuth();
   const [previewUrl, setPreviewUrl] = useState<string>("");
-
   const [greska, setGreska] = useState("");
-  const navigate = useNavigate(); // ili: const nav = useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (authUser) {
       setImePrezime(authUser.imePrezime || "");
       setBrojTelefona(authUser.brojTelefona || "");
-      // kada se korisnik učita/izmeni iz konteksta, resetuj preview
+      
       setPreviewUrl("");
     }
   }, [authUser]);
 
-  // 🔁 Bezbedno čišćenje object URL-a
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
-  // Submit funkcija za formu
+
   const podnesiFormu = async (e: React.FormEvent) => {
     e.preventDefault();
     setGreska("");
@@ -67,9 +63,8 @@ const IzmjenaForma: React.FC = () => {
     const formData = new FormData();
     formData.append("imePrezime", imePrezime);
     formData.append("brojTelefona", brojTelefona);
-    if (avatar) formData.append("slika", avatar); // Multer .single("slika")
-
-    const stored = PročitajVrednostPoKljuču("auth:token") || "";
+    if (avatar) formData.append("slika", avatar); 
+    const stored = ProcitajVrednostPoKljucu("auth:token") || "";
     const rawToken = (token || stored).replace(/^Bearer\s+/i, "").trim();
     if (!rawToken) {
       setGreska("Niste prijavljeni.");
@@ -84,15 +79,14 @@ const IzmjenaForma: React.FC = () => {
         const t = res.token;
 
         if (typeof t === "string" && t.includes(".") && t.split(".").length === 3) {
-          // ✅ backend vratio validan JWT
-          login(t);               // ovo prebrise stari token u localStorage
+          
+          login(t);               
         } else {
-          // ⛑ fallback ako tokena nema — odmah osveži AuthContext iz DTO-a
-          applyUserUpdate(res.data);
+         
         }
 
         if (res.data?.slikaUrl) {
-          setPreviewUrl(buildImageUrl(res.data.slikaUrl)); // cache-bust
+          setPreviewUrl(buildImageUrl(res.data.slikaUrl)); 
           setAvatar(null);
         }
 
@@ -106,8 +100,7 @@ const IzmjenaForma: React.FC = () => {
     }
   };
 
-  // 👇 Ako postoji lokalni preview (novi fajl izabran), prikaži njega;
-  //    inače prikaži sliku iz authUser.slikaUrl
+  
   const imgSrc = previewUrl || buildImageUrl(authUser?.slikaUrl);
 
   return (
@@ -141,9 +134,8 @@ const IzmjenaForma: React.FC = () => {
             onChange={(e) => {
               const f = e.target.files?.[0] || null;
               setAvatar(f);
-              // ✅ generiši lokalni preview odmah
+             
               if (f) {
-                // oslobodi stari, ako postoji
                 if (previewUrl) URL.revokeObjectURL(previewUrl);
                 setPreviewUrl(URL.createObjectURL(f));
               } else {

@@ -31,8 +31,15 @@ export function validacijaPodatakaRegistracija(
   if (!/^[0-9]{8,12}$/.test(telefon)) {
     return { uspesno: false, poruka: "Telefon može sadržati samo brojeve (8-12 cifara)." };
   }
-   if (slika && slika.size && slika.size > 2 * 1024 * 1024) {
-     return { uspesno: false, poruka: "Slika mora biti manja od 2MB." };
-   }
+   if (slika) {
+    const size = (slika.size ?? slika.length ?? 0) as number; // Multer File.size ili Buffer.length
+    if (size > 2 * 1024 * 1024) {
+      return { uspesno: false, poruka: "Slika mora biti manja od 2MB." };
+    }
+    const mimetype = slika.mimetype ?? slika.type;
+    if (mimetype && !/^image\//.test(mimetype)) {
+      return { uspesno: false, poruka: "Dozvoljene su samo slike (image/*)." };
+    }
+  }
   return { uspesno: true };
 }
