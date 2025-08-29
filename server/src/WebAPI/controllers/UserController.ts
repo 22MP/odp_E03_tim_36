@@ -3,8 +3,6 @@ import { IUserService } from "../../Domain/services/users/IUserService";
 import { UserDto } from "../../Domain/DTOs/users/UserDto";
 import { authenticate } from "../../Middlewares/authentification/AuthMiddleware";
 import { authorize } from "../../Middlewares/authorization/AuthorizeMiddleware";
-import { uploadAvatar } from "../../Middlewares/Upload/upload";
-import jwt from "jsonwebtoken";
 
 export class UserController {
   private router: Router;

@@ -4,6 +4,5 @@ export type MessageDTO = {
   primalacID: number;
   tekstPoruke: string;
   stanje: "sent" | "read";
-  vrijemeSlanja: string;      
-  
+  vrijemeSlanja: string;        
 };

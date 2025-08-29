@@ -1,5 +1,4 @@
 // Interfejs za korisnika
-// Interfejs za korisnika
 export interface User {
   id: number;
   korisnickoIme: string;

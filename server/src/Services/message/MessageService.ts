@@ -17,7 +17,7 @@ export class MessageService implements IMessageService {
     receiverId: number,
     content: string
   ): Promise<MessageDto> {
-    // --- minimalna validacija ---
+    
     const text = (content ?? "").trim();
     if (!senderId || !receiverId) {
       throw new Error("Neispravni ID-jevi korisnika.");

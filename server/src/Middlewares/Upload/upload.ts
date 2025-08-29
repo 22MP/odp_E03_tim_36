@@ -1,15 +1,12 @@
-// src/middleware/upload.ts  (VAN PDF-a)
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// 1) Folder za upload: /uploads
-// src/middleware/upload.ts
-// PRE: const uploadDir = path.join(process.cwd(), "uploads");
-const uploadDir = path.join(process.cwd(), "uploads", "slike"); // <-- ovako
+// 1) Folder za upload
+const uploadDir = path.join(process.cwd(), "uploads", "slike"); 
 
 
-// Kreiraj folder ako ne postoji (rekurzivno zbog CI ili svežeg klona)
+// Kreiraj folder ako ne postoji 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -18,7 +15,7 @@ if (!fs.existsSync(uploadDir)) {
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
-    // Ekstenzija iz originalnog imena (brzo i dovoljno za tvoj slučaj)
+    // Ekstenzija iz originalnog imena 
     const ext = path.extname(file.originalname) || "";
     // userId uzimamo iz JWT-a (postavlja ga authenticate middleware)
     const userId = (req as any).user?.id ?? "anon";

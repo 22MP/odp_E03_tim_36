@@ -1,3 +1,4 @@
+// Forma za izmjenu korisničkog profila
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 import { ProcitajVrednostPoKljucu } from "../../helpers/local_storage";
@@ -10,9 +11,11 @@ import type { IAuthAPIService } from "../../api_services/auth/IAuthAPIService";
 type Props ={
   authApi:IAuthAPIService;
 }
+// Osnovni URL za slike
 const IMAGE_BASE_URL =
   import.meta.env.VITE_API_URL?.replace("/api/v1", "") || "http://localhost:4000";
 
+// Pravi puni URL za sliku
 function buildImageUrl(path?: string) {
   if (!path) return "";
   return path.startsWith("http")
@@ -21,6 +24,7 @@ function buildImageUrl(path?: string) {
 }
 
 const IzmjenaForma: React.FC<Props> = ({authApi}) => {
+  // Hookovi i state za formu
   const { user: authUser, token } = useAuth();
   const [imePrezime, setImePrezime] = useState("");
   const [brojTelefona, setBrojTelefona] = useState("");
@@ -30,6 +34,7 @@ const IzmjenaForma: React.FC<Props> = ({authApi}) => {
   const [greska, setGreska] = useState("");
   const navigate = useNavigate();
 
+  // Popuni formu podacima korisnika
   useEffect(() => {
     if (authUser) {
       setImePrezime(authUser.imePrezime || "");
@@ -39,6 +44,7 @@ const IzmjenaForma: React.FC<Props> = ({authApi}) => {
     }
   }, [authUser]);
 
+  // Oslobodi memoriju za preview slike
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -46,21 +52,25 @@ const IzmjenaForma: React.FC<Props> = ({authApi}) => {
   }, [previewUrl]);
 
 
+  // Submit forma za izmjenu profila
   const podnesiFormu = async (e: React.FormEvent) => {
     e.preventDefault();
     setGreska("");
 
-    if (!authUser) {
+  // Provjera da li je korisnik prijavljen
+  if (!authUser) {
       setGreska("Niste prijavljeni.");
       return;
     }
 
-    if(!validacijaPodatakaIzmjene(imePrezime,brojTelefona, avatar).uspesno){
+  // Validacija podataka
+  if(!validacijaPodatakaIzmjene(imePrezime,brojTelefona, avatar).uspesno){
       setGreska("Neispravni podaci");
       return;
     }
 
-    const formData = new FormData();
+  // Priprema podataka za slanje
+  const formData = new FormData();
     formData.append("imePrezime", imePrezime);
     formData.append("brojTelefona", brojTelefona);
     if (avatar) formData.append("slika", avatar); 
@@ -72,28 +82,32 @@ const IzmjenaForma: React.FC<Props> = ({authApi}) => {
     }
 
 
+    // Poziv API-a za izmjenu profila
     try {
       const res = await authApi.update(rawToken, formData);
 
       if (res.success) {
         const t = res.token;
 
+        // Ako je vraćen novi token, prijavi korisnika
         if (typeof t === "string" && t.includes(".") && t.split(".").length === 3) {
-          
           login(t);               
         } else {
-         
+          // Token nije validan
         }
 
+        // Prikaz nove slike ako je promijenjena
         if (res.data?.slikaUrl) {
           setPreviewUrl(buildImageUrl(res.data.slikaUrl)); 
           setAvatar(null);
         }
 
-        toast.success("Profil je uspješno ažuriran.");
-        navigate(`/${(res.data?.uloga ?? authUser.uloga).toLowerCase()}-dashboard`, { replace: true });
+  // Uspješno ažuriran profil
+  toast.success("Profil je uspješno ažuriran.");
+  navigate(`/${(res.data?.uloga ?? authUser.uloga).toLowerCase()}-dashboard`, { replace: true });
       } else {
-        setGreska(res.message || "Greška pri izmjeni profila.");
+  // Prikaz greške ako izmjena nije uspjela
+  setGreska(res.message || "Greška pri izmjeni profila.");
       }
     } catch {
 
@@ -101,6 +115,7 @@ const IzmjenaForma: React.FC<Props> = ({authApi}) => {
   };
 
   
+  // Izvor slike za prikaz
   const imgSrc = previewUrl || buildImageUrl(authUser?.slikaUrl);
 
   return (

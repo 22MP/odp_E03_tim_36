@@ -2,11 +2,10 @@ import { Request, Response, Router } from 'express';
 import { IAuthService } from '../../Domain/services/auth/IAuthService';
 import { validacijaPodatakaAuth } from '../validators/auth/LogInValidator';
 import jwt from "jsonwebtoken";
-import {uploadAvatar} from "../../Middlewares/Upload/upload" 
 import { validacijaPodatakaRegistracija } from '../validators/auth/RegValidator';
 import { authenticate } from '../../Middlewares/authentification/AuthMiddleware';
 import { validacijaPodatakaIzmjene } from '../validators/auth/EditValidator';
-import { Message } from '../../Domain/models/Message';
+import { uploadAvatar } from '../../Middlewares/upload/Upload';
 
 export class AuthController {
   private router: Router;
@@ -60,7 +59,10 @@ export class AuthController {
       res.status(500).json({success: false, message: "Došlo je do greške na serveru."});
     }
   }
-
+  /**
+   * Izmjena profila prijavljenog korisnika (ime, telefon, slika).
+   * Prima podatke, validira ih, ažurira korisnika i vraća novi JWT token.
+   */
   private async patchMe(req: Request, res: Response) {
     try {
       const meId = (req as any).user.id as number;
@@ -96,13 +98,13 @@ export class AuthController {
   
 
   /**
-   * Registracija korisnika (sa slikom)
+   * Registracija korisnika 
    */
   private async registracija(req: Request, res: Response): Promise<void> {
     try {
       // Polja iz forme
       const { korisnickoIme, lozinka, uloga, imePrezime, telefon } = req.body;
-      const rezultat = validacijaPodatakaRegistracija(korisnickoIme, lozinka, imePrezime, telefon, uloga, req.file);
+      const rezultat = validacijaPodatakaRegistracija(korisnickoIme, lozinka, imePrezime, telefon, req.file);
 
       if (!rezultat.uspesno) {
         res.status(400).json({ success: false, message: "Korisničko ime i lozinka su obavezni." });

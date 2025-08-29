@@ -4,7 +4,6 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/auth/AuthContext.tsx";
 import {Toaster} from "react-hot-toast";
-// import { AvatarProvider } from "./contexts/avatar/AvatarContext.tsx";
 
 import { BrowserRouter } from "react-router-dom";
 

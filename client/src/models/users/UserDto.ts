@@ -1,5 +1,4 @@
 // DTO za podatke o korisniku
-// DTO za podatke o korisniku
 export interface UserDto {
     id: number;
     korisnickoIme: string;

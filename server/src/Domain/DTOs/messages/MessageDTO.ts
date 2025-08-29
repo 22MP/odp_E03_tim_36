@@ -1,4 +1,3 @@
-
 export class MessageDto {
   public constructor(
     public id: number = 0,

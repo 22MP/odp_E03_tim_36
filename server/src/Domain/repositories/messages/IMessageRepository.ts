@@ -3,9 +3,6 @@ import { Message } from "../../models/Message";
 /**
  * Repository interfejs za upravljanje porukama.
  * Definiše operacije za rad sa entitetom Message u bazi podataka.
- * 
- * SRP: Svaka metoda je zadužena za jednu jasno definisanu akciju nad porukama.
- * ISP: Interfejs je fokusiran samo na metode koje se odnose na Message entitet.
  */
 export interface IMessageRepository {
 	/**

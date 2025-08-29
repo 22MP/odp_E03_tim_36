@@ -1,5 +1,4 @@
 // Model korisnika
-// Model korisnika
 export class User {
   public constructor(
     public id: number = 0,

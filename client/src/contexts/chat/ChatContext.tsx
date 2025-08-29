@@ -75,7 +75,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     await fetchMessages(selectedUserId);
   }, [fetchMessages, selectedUserId]);
 
-  // ====== efekti ======
 
   // Polling za bedževe
   useEffect(() => {
@@ -97,7 +96,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         selectUser,
         fetchMessages,
         sendMessage,
-        refreshConversation, // <- sada postoji u scope-u
+        refreshConversation, 
         unreadMap,
         refreshUnreadMap,
       }}

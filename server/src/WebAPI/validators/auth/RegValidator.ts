@@ -4,7 +4,6 @@ export function validacijaPodatakaRegistracija(
   lozinka?: string,
   imePrezime?: string,
   telefon?: string,
-  uloga?: string,
   slika?: any // Buffer, string, File, zavisi od backend parsiranja
 ): { uspesno: boolean; poruka?: string } {
   if (!korisnickoIme || !lozinka || !imePrezime || !telefon ) {

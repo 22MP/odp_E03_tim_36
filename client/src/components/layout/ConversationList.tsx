@@ -58,7 +58,6 @@ const ConversationList: React.FC<Props> = ({usersApi}) => {
   }, [token, user]);
 
   return (
-    // min-h-0 je bitan kad je roditelj flex-1: dozvoljava child-u da računa visinu za skrol
     <div className="flex flex-col h-full min-h-0 mt-8">
       {/* Header */}
       <div className="flex items-center justify-between text-xs px-1">
@@ -112,7 +111,7 @@ const ConversationList: React.FC<Props> = ({usersApi}) => {
                     {u.imePrezime}
                   </div>
 
-                  {/* Red 3: telefon (NOVI RED) */}
+                  {/* Red 3: telefon */}
                   <div className="text-[11px] text-gray-500 truncate">
                     {u.brojTelefona}
                   </div>
